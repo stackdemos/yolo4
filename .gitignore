@@ -1,0 +1,17 @@
+tmp/
+.attic/
+.python-version
+Dockerfile.flask
+Dockerfile.seldon
+.pyenv/
+.ipynb_checkpoints/
+.vscode/
+.envrc
+.hub/templates/*.yaml
+seq2seq/
+*.pem
+.hub/examples/
+*.elaborate
+*.state
+versions/
+

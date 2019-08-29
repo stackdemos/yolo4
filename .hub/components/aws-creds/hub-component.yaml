@@ -1,0 +1,45 @@
+---
+version: 1
+kind: component
+meta:
+  name: aws-creds
+  brief: Setup aws credentials
+  source:
+    dir: components/aws-creds
+
+parameters:
+- name: dns.domain
+  env:  DOMAIN_NAME
+- name: cloud
+  parameters:
+  - name: region
+    env: AWS_DEFAULT_REGION
+    empty: allow
+  - name: credential.accessKey
+    env: AWS_ACCESS_KEY_ID
+    empty: allow
+  - name: credential.secretKey
+    env: AWS_SECRET_ACCESS_KEY
+    empty: allow
+  - name: credential.sessionToken
+    env: AWS_SESSION_TOKEN
+    empty: allow
+  - name: credential.roleArn
+    env: ROLE_ARN
+    empty: allow
+  - name: credential.source
+    env: CREDENTIAL_SOURCE
+    value: Ec2InstanceMetadata
+  - name: credential.profile
+    value: application
+    env: PROFILE
+  - name: kind
+    value: aws
+  - name: credential.kubernetes.secret.name
+    value: aws-creds
+    env: SECRET_NAME
+  - name: credential.kubernetes.secret.namespace
+    value: kube-system
+    env: NAMESPACE
+
+outputs: []

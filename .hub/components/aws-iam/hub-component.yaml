@@ -1,0 +1,36 @@
+version: 1
+kind: component
+meta:
+  name: app-role
+  brief: Application private component that manages IAM role
+  source:
+    dir: ../../components/app-role
+
+requires:
+  - aws
+  # - ingress
+
+parameters:
+- name: terraform.bucket.name
+  env: STATE_BUCKET
+- name: terraform.bucket.region
+  env: STATE_REGION
+- name: cloud.region
+  env: AWS_DEFAULT_REGION
+- name: dns.domain
+  env:  DOMAIN_NAME
+- name: application
+  parameters:
+  - name: name
+    env: APPLICATION_NAME
+  - name: bucket.name
+    env: TF_VAR_bucket
+  - name: iam.role
+    env: TF_VAR_role
+  - name: iam.allowEcr
+    value: true
+    env: TF_VAR_allow_ecr
+
+outputs:
+- name: application.iam.roleArn
+  fromTfVar: assume_role_arn

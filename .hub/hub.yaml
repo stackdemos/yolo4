@@ -1,0 +1,198 @@
+version: 1
+kind: application
+meta:
+  name: 'kubeflow-pipeline:1'
+  brief: Kubeflow Pipeline end-to-end applicaiton
+  source:
+    dir: .
+requires:
+  - kubernetes
+outputs:
+  - name: application.notebook.url
+    value: '${component.kubeflow.url}_/notebooks'
+    brief: URL to the application jupyter notebook
+  - name: application.git.kind
+    value: '${component.git.kind}'
+    brief: Reference that application uses Github
+  - name: application.git.remote
+    value: '${component.git.remote}'
+    brief: URL to the git repository
+  - name: application.git.branch
+    value: '${component.git.branch}'
+    brief: Git branch that current application stack is using
+  - name: application.bucket.pv.capacity
+    value: '${application.bucket.pv.capacity}'
+  - name: application.bucket.url
+    value: '${application.bucket.endpoint}/minio/${application.bucket.name}'
+    brief: URL of a bucket that has been used to store application artifacts
+  - name: application.jupyter.kernel.image
+    value: '${application.jupyter.kernel.image}'
+templates:
+  files:
+    - templates/notebook-config.yaml.template
+    - templates/notebook-pvc.yaml.template
+    - templates/notebook.yaml.template
+    - templates/rbac.yaml.template
+    - templates/git-secret.yaml.template
+    - templates/bucket-pv-minio.yaml.template
+    - templates/notebook-keyring-minio.yaml.template
+lifecycle:
+  bare: allow
+  verbs:
+    - deploy
+    - undeploy
+  order:
+    - github-repository
+    - pull-secret
+    - aws-creds
+    - s3fuse
+    - minio-bucket
+parameters:
+  - name: cloud.kind
+  - name: dns.domain
+    env: KUBECONTEXT
+  - name: terraform.bucket.name
+  - name: terraform.bucket.region
+  - name: application.name
+    env: APPLICATION
+  - name: application.description
+    value: End-to-end Kubeflow pipeline
+  - name: application.workspace.dir
+    default: ../../../
+    fromEnv: WORKSPACE
+  - name: application.workspace.size
+    value: 10Gi
+  - name: application.workspace.uid
+    brief: stands for jovyan user
+    value: '1000'
+  - name: application.workspace.gid
+    brief: stands for jovyan  user primary group
+    value: '100'
+  - name: application.workspace.storageClass
+    value: default
+  - name: application.workspace.accessMode
+    value: ReadWriteOnce
+  - name: application.namespace
+    kind: user
+    value: kubeflow
+    env: NAMESPACE
+  - name: component.kubeflow.url
+  - name: component.kubeflow.namespace
+  - name: component.github.token
+    fromEnv: COMPONENT_GITHUB_TOKEN
+  - name: component.github.repository.organization
+  - name: component.github.repository.name
+  - name: component.github.repository.description
+    kind: link
+    value: '${application.description}'
+  - name: component.github.workspace
+    kind: link
+    value: '${application.workspace.dir}'
+  - name: component.git.kind
+    value: github
+  - name: component.git.remote
+  - name: component.git.username
+  - name: component.git.password
+  - name: component.git.branch
+  - name: component.git.secretName
+    kind: link
+    value: '${application.name}-github'
+  - kind: user
+    name: application.training.docker.registry.url
+  - kind: user
+    name: application.training.docker.auth.host
+  - kind: user
+    name: application.training.docker.auth.basic.username
+  - kind: user
+    name: application.training.docker.auth.basic.password
+    fromEnv: APPLICATION_TRAINING_DOCKER_AUTH_BASIC_PASSWORD
+  - kind: user
+    name: application.training.docker.registry.kind
+  - kind: link
+    name: component.pullSecret.name
+    value: '${application.name}-pullsecret'
+  - kind: link
+    name: component.pullSecret.namespace
+    value: '${application.namespace}'
+  - kind: link
+    name: component.docker.registry.kind
+    value: '${application.training.docker.registry.kind}'
+  - kind: link
+    name: component.docker.auth.host
+    value: '${application.training.docker.auth.host}'
+  - kind: link
+    name: component.docker.auth.basic.username
+    value: '${application.training.docker.auth.basic.username}'
+  - kind: link
+    name: component.docker.auth.basic.password
+    value: '${application.training.docker.auth.basic.password}'
+  - kind: user
+    name: application.bucket.name
+  - kind: user
+    name: application.bucket.endpoint
+  - kind: user
+    name: application.bucket.region
+    brief: region not used for minio; declared for compatibility with s3
+    empty: allow
+  - kind: user
+    name: application.bucket.accessKey
+    fromEnv: APPLICATION_BUCKET_ACCESSKEY
+  - kind: user
+    name: application.bucket.secretKey
+    fromEnv: APPLICATION_BUCKET_SECRETKEY
+  - kind: user
+    name: application.bucket.pv.capacity
+    value: 600Gi
+  - name: component.ingress.protocol
+    value: https
+  - kind: user
+    name: component.bucket.kind
+    value: minio
+    env: BUCKET_KIND
+  - kind: link
+    name: component.bucket.name
+    value: '${application.bucket.name}'
+  - kind: link
+    name: component.bucket.endpoint
+    value: '${application.bucket.endpoint}'
+  - kind: link
+    name: component.bucket.accessKey
+    value: '${application.bucket.accessKey}'
+  - kind: link
+    name: component.bucket.secretKey
+    value: '${application.bucket.secretKey}'
+  - name: component.s3fuse.namespace
+    kind: link
+    value: '${application.namespace}'
+  - name: cloud.credential.kubernetes.secret.name
+    value: '${application.name}-${application.bucket.name}-creds'
+  - name: cloud.credential.kubernetes.secret.namespace
+    value: '${application.namespace}'
+  - name: cloud.credential.accessKey
+    kind: link
+    value: '${application.bucket.accessKey}'
+  - name: cloud.credential.secretKey
+    kind: link
+    value: '${application.bucket.secretKey}'
+  - name: cloud.credential.profile
+    value: default
+  - name: cloud.credential.region
+    empty: allow
+  - name: application.jupyter.kernel.image
+    value: 'docker.io/agilestacks/jupyter-tensorflow-ktext-seq2seq:latest'
+components:
+  - name: github-repository
+    source:
+      dir: components/github-repository
+  - name: pull-secret
+    source:
+      dir: components/pull-secret
+  - name: aws-creds
+    source:
+      dir: components/aws-creds
+  - name: minio-bucket
+    source:
+      dir: components/minio-bucket
+  - name: s3fuse
+    source:
+      dir: components/s3fs

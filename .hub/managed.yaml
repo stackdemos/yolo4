@@ -1,0 +1,50 @@
+parameters:
+  - name: application.bucket.endpoint
+    value: 'https://ml4-minio.app.ml4.demo05.superhub.io'
+  - name: application.bucket.endpoint.internal
+    value: 'http://ml4-minio.minio.svc.cluster.local:9000'
+  - name: application.bucket.name
+    value: default
+  - name: application.bucket.region
+    value: us-east-1
+  - name: application.description
+    value: Kubeflow pipeline
+  - name: application.name
+    value: yolo4
+  - name: application.training.docker.auth.basic.username
+    value: admin
+  - name: application.training.docker.auth.host
+    value: ml4-harbor.svc.ml4.demo05.superhub.io
+  - name: application.training.docker.registry.image
+    value: ml4-harbor.svc.ml4.demo05.superhub.io/library/yolo4
+  - name: application.training.docker.registry.kind
+    value: harbor
+  - name: application.training.docker.registry.url
+    value: ml4-harbor.svc.ml4.demo05.superhub.io/library
+  - name: component.dex.okta.appId
+    value: 0oa3qn3ro7BnRqvWV2p7
+  - name: component.dex.okta.clientId
+    value: 0oa3qn3ro7BnRqvWV2p7
+  - name: component.dex.okta.issuer
+    value: 'https://agilestacks.okta.com'
+  - name: component.github.repository.name
+    value: yolo4
+  - name: component.github.repository.organization
+    value: stackdemos
+outputs:
+  - name: application.bucket.endpoint
+  - name: application.bucket.endpoint.internal
+  - name: application.bucket.name
+  - name: application.bucket.region
+  - name: application.description
+  - name: application.name
+  - name: application.training.docker.auth.basic.username
+  - name: application.training.docker.auth.host
+  - name: application.training.docker.registry.image
+  - name: application.training.docker.registry.kind
+  - name: application.training.docker.registry.url
+  - name: component.dex.okta.appId
+  - name: component.dex.okta.clientId
+  - name: component.dex.okta.issuer
+  - name: component.github.repository.name
+  - name: component.github.repository.organization

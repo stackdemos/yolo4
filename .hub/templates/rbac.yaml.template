@@ -1,0 +1,76 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: ${application.name}-jupyter-keyring
+  namespace: ${application.namespace}
+rules:
+- apiGroups:
+  - ""
+  - "machinelearning.seldon.io"
+  resources: [secrets, seldondeployments]
+  verbs: ['create', 'get', 'update', 'delete', 'patch']
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: ${application.name}-pv-write
+  annotations:
+    rbac.authorization.kubernetes.io/autoupdate: "true"
+rules:
+- apiGroups:
+  - ""
+  resources: [persistentvolumes]
+  verbs: ['create', 'get', 'update', 'delete', 'patch']
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: ${application.name}-pvc-write
+  namespace: ${application.namespace}
+rules:
+- apiGroups:
+  - ""
+  resources: [persistentvolumeclaims]
+  verbs: ['create', 'get', 'update', 'delete', 'patch']
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: ${application.name}-allow-jupyter-keyring
+  namespace: ${application.namespace}
+subjects:
+- kind: ServiceAccount
+  name: default-editor
+  namespace: ${application.namespace}
+roleRef:
+  kind: Role
+  name: ${application.name}-jupyter-keyring
+  apiGroup: rbac.authorization.k8s.io
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: ${application.name}-allow-pvc
+  namespace: ${application.namespace}
+subjects:
+- kind: ServiceAccount
+  name: default-editor
+  namespace: ${application.namespace}
+roleRef:
+  kind: Role
+  name: ${application.name}-pvc-write
+  apiGroup: rbac.authorization.k8s.io
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: ${application.name}-allow-pv
+  namespace: ${application.namespace}
+subjects:
+- kind: ServiceAccount
+  name: default-editor
+  namespace: ${application.namespace}
+roleRef:
+  kind: ClusterRole
+  name: ${application.name}-pv-write
+  apiGroup: rbac.authorization.k8s.io

@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Secret
+type: superhub.io/jupyter-keyring
+metadata:
+  name: ${application.name}-nb-keyring
+stringData:
+  aws_access_key_id: "${application.bucket.accessKey}"
+  aws_secret_access_key: "${application.bucket.secretKey}"
+  github_token: "${component.github.token}"

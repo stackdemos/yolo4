@@ -1,0 +1,87 @@
+apiVersion: kubeflow.org/v1alpha1
+kind: Notebook
+metadata:
+  labels:
+    app: notebook
+  name: ${application.name}
+  namespace: ${application.namespace}
+spec:
+  template:
+    spec:
+      initContainers:
+      - name: git-sync
+        image: k8s.gcr.io/git-sync:v3.1.1
+        env:
+        - name: GIT_SYNC_REPO
+          valueFrom:
+            secretKeyRef:
+              name: ${component.git.secretName}
+              key: clone_url
+        - name: GIT_SYNC_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: ${component.git.secretName}
+              key: username
+        - name: GIT_SYNC_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: ${component.git.secretName}
+              key: password
+        args:
+        - --branch=master
+        - -rev=HEAD
+        - --wait=30
+        - -one-time
+        - --root=/tmp/.git-sync
+        - --dest=current
+        volumeMounts:
+        - name: workspace
+          mountPath: /tmp
+      - name: update-workspace
+        image: alpine:latest
+        workingDir: /tmp
+        command: ["/bin/sh", "-c"]
+        args:
+        - >
+          ln -s .git-sync/current workspace;
+          chown -R ${application.workspace.uid}:${application.workspace.gid} workspace workspace/* workspace/ workspace/.[^.]*/;
+        volumeMounts:
+        - name: workspace
+          mountPath: /tmp
+      containers:
+      - name: notebook
+        image: ${application.jupyter.kernel.image}
+        env:
+        - name: NB_VARS
+          value: ${application.name}-nb-vars
+        - name: NB_SECRET_VARS
+          value: ${application.name}-nb-keyring
+        - name: AWS_PROFILE
+          value: "${cloud.credential.profile}"
+        - name: AWS_REGION
+          value: "${application.bucket.region}"
+        resources:
+          limits: {}
+          requests:
+            cpu: "0.5"
+            memory: 1.0Gi
+        volumeMounts:
+        - mountPath: /home/jovyan
+          name: workspace
+        - mountPath: /home/jovyan/data
+          name: data
+        - mountPath: "/home/jovyan/.aws"
+          name: aws-creds
+          readOnly: true
+      serviceAccountName: default-editor
+      ttlSecondsAfterFinished: 300
+      volumes:
+      - name: workspace
+        persistentVolumeClaim:
+          claimName: ${application.name}-workspace
+      - name: data
+        persistentVolumeClaim:
+          claimName: "${application.name}-${application.bucket.name}-data"
+      - name: aws-creds
+        secret:
+          secretName: "${application.name}-${application.bucket.name}-creds"

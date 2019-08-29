@@ -1,0 +1,43 @@
+---
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: "${application.name}-${application.bucket.name}-data"
+  labels:
+    app: "${application.name}"
+    bucket: "${application.bucket.name}"
+spec:
+  storageClassName: goofys
+  accessModes:
+  - ReadWriteMany
+  capacity:
+    storage: "${application.bucket.pv.capacity}"
+  volumeMode: Filesystem
+  flexVolume:
+    driver: "goofysflex"
+    # secretRef:
+    #   name: "${application.name}-${application.bucket.name}-data"
+    options:
+      # Required
+      bucket: "${application.bucket.name}"
+      endpoint: "${application.bucket.endpoint}"
+      region: "${application.bucket.region}"
+      uid: "1000"
+      gid: "100"
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: "${application.name}-${application.bucket.name}-data"
+spec:
+  storageClassName: goofys
+  accessModes:
+    - ReadWriteMany
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: "${application.bucket.pv.capacity}"
+  selector:
+    matchLabels:
+      app: "${application.name}"
+      bucket: "${application.bucket.name}"

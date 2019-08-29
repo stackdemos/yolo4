@@ -1,0 +1,49 @@
+version: 1
+kind: component
+meta:
+  name: minio-bucket
+  brief: S3 bucket backed by minio
+  source:
+    dir: ../../components/minio-bucket
+
+requires:
+  - kubernetes
+  # - ingress
+provides:
+  - bucket
+
+lifecycle:
+  verbs: [deploy, undeploy]
+  # bare: allow
+
+parameters:
+- name: component.ingress.protocol
+  value: https
+  env: INGRESS_PORTOCOL
+- name: dns.domain
+  brief: DNS domain
+  env: DOMAIN_NAME
+- name: component.bucket
+  parameters:
+  - name: name
+    kind: user
+    value: default
+    env: BUCKET_NAME
+  - name: endpoint
+    env: ENDPOINT
+  - name: accessKey
+    env: AWS_ACCESS_KEY_ID
+  - name: secretKey
+    env: AWS_SECRET_ACCESS_KEY
+  - name: region
+    env: AWS_DEFAULT_REGION
+    value: us-east-1
+  - name: acl
+    value: private
+    env: BUCKET_ACL
+
+templates:
+  files: []
+  # - "*.template"
+
+outputs: []

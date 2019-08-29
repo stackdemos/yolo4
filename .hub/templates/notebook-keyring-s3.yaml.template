@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Secret
+type: superhub.io/jupyter-keyring
+metadata:
+  name: ${application.name}-nb-keyring
+stringData:
+  github_token: "${component.github.token}"

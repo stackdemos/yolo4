@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ${application.name}-nb-vars
+  labels:
+    app: "${application.name}"
+    bucket: "${application.bucket.name}"
+data:
+  APPLICATION_NAME: "${application.name}"
+  DOCKER_REGISTRY: "${application.training.docker.registry.url}"
+  DOCKER_REGISTRY_PULL_SECRET: "${component.pullSecret.name}"
+  BUCKET_ENDPOINT: "${application.bucket.endpoint}"
+  BUCKET_NAME: "${application.bucket.name}"
+  BUCKET_PVC: "${application.name}-${application.bucket.name}-data"
+  CLOUD_KIND: "${cloud.kind}"
+  INGRESS_URL: "${component.kubeflow.url}"
+  KEYRING_SECRET: "${application.name}-nb-keyring"
+  NAMESPACE: "${application.namespace}"
+  MOUNT_PATH: "/mnt/s3"
+  STORAGE_KIND: "${component.bucket.kind}"

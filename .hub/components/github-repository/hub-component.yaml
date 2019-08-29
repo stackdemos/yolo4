@@ -1,0 +1,70 @@
+---
+version: 1
+kind: component
+meta:
+  name: github
+  brief: Encapsulates operations with Github
+# requires: [ghub]
+parameters:
+- name: component.git
+  parameters:
+  - name: user.name
+    value: SuperHub
+    env: USER_NAME
+  - name: user.email
+    value: support@agilestacks.io
+    env: USER_EMAIL
+- name: component.github
+  parameters:
+  - name: token
+    value:
+    env: GITHUB_TOKEN
+    empty: allow
+  - name: api
+    value: api.github.com
+    env: API_SERVER
+  - name: workspace
+    value: ../../../
+    env: SRC_DIR
+- name: component.github.repository
+  parameters:
+  - name: organization
+    env: ORG
+  - name: name
+    env: REPO
+  - name: protocol
+    value: https
+    env: HUB_PROTOCOL
+  - name: private
+    value: 'false'
+    env: PRIVATE
+  - name: description
+    value:
+    env: DESCRIPTION
+    empty: allow
+  - name: homepage
+    value:
+    env: HOMEPAGE
+    empty: allow
+
+outputs:
+- name: component.git.remote
+  fromTfVar: clone_url
+- name: component.git.username
+  value: x-oauth-basic
+- name: component.git.password
+  value: ${component.github.token}
+- name: component.git.branch
+  value: master
+- name: component.github.repository.cloneUrl
+  fromTfVar: clone_url
+- name: component.github.repository.gitUrl
+  fromTfVar: git_url
+- name: component.github.repository.htlmUrl
+  fromTfVar: html_url
+- name: component.github.repository.sshUrl
+  fromTfVar: ssh_url
+- name: component.github.repository.private
+  fromTfVar: private
+- name: component.github.repository.branch
+  value: master

@@ -1,0 +1,44 @@
+---
+version: 1
+kind: component
+meta:
+  name: pull-secret
+  brief: Private docker registry pull image
+  source:
+    dir: ../../components/pull-secret
+
+requires:
+  - kubernetes
+provides:
+  - pull-secret
+
+parameters:
+- name: dns.domain
+  env: DOMAIN_NAME
+- name: component.pullSecret
+  parameters:
+  - name: name
+    env: COMPONENT_NAME
+  - name: namespace
+    env: NAMESPACE
+- name: component.docker.registry.kind
+  value: harbor
+- name: component.docker.auth
+  parameters:
+  - name: host
+    env: DOCKER_HOST
+  - name: basic.username
+    env: DOCKER_USERNAME
+    empty: allow
+  - name: basic.password
+    env: DOCKER_PASSWORD
+    empty: allow
+  - name: email
+    env: DOCKER_EMAIL
+    empty: allow
+
+outputs:
+- name: component.pullSecret.name
+  value: ${component.pullSecret.name}
+- name: component.pullSecret.namespace
+  value: ${component.pullSecret.namespace}
